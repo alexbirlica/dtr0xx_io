@@ -73,7 +73,6 @@ dtr0xx_io_PIN_SCHEMA = pins.gpio_base_schema(
     cv.int_range(min=0, max=2047),
     modes=[CONF_INPUT, CONF_OUTPUT],
     mode_validator=validate_mode,
-    invertable=True,
 ).extend(
     {
         cv.Required(CONF_dtr0xx_io): cv.use_id(dtr0xx_ioComponent),
