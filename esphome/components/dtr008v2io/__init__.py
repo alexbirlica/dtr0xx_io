@@ -51,7 +51,7 @@ dtr008v2io_PIN_SCHEMA = pins.gpio_base_schema(
     cv.int_range(min=0, max=DTR008V2IO_PINS-1),
     modes=[CONF_INPUT, CONF_OUTPUT],
     mode_validator=validate_mode,
-    invertable=True,
+    #invertable=True,
 ).extend(
     {
         cv.Required(CONF_dtr008v2io): cv.use_id(dtr008v2ioComponent),
