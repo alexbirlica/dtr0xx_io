@@ -20,7 +20,7 @@ void dtr0xx_ioComponent::setup() {
 
   if (this->dingtian_rck_pin_ != nullptr) {
     this->dingtian_rck_pin_->setup();
-    this->dingtian_rck_pin_->digital_write(true);
+    this->dingtian_rck_pin_->digital_write(false);
   }
 
   // read state from shift register
@@ -55,9 +55,10 @@ void dtr0xx_ioComponent::read_gpio_(bool write_output_pins) {
 
   this->dingtian_pl_pin_->digital_write(true);
   delayMicroseconds(1);
-
-  if (this->dingtian_rck_pin_ != nullptr)
-    this->dingtian_rck_pin_->digital_write(false);
+  
+  // not needed as it will always be false
+  // if (this->dingtian_rck_pin_ != nullptr)
+  //   this->dingtian_rck_pin_->digital_write(false);
 
   for (uint8_t i = 0; i < this->sr_count_; i++) {
     for (uint8_t j = 0; j < 8; j++) {
@@ -72,7 +73,7 @@ void dtr0xx_ioComponent::read_gpio_(bool write_output_pins) {
   this->dingtian_pl_pin_->digital_write(false);
 
   // toggle RCK only if there is a change in output
-  if (true == write_output_pins)
+  if ((true == write_output_pins) && (this->dingtian_rck_pin_ != nullptr))
   {
     this->dingtian_rck_pin_->digital_write(true);
     delayMicroseconds(1);
