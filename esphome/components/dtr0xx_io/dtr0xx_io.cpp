@@ -51,14 +51,11 @@ void dtr0xx_ioComponent::digital_write_(uint16_t pin, bool value)
   this->read_gpio_(true);
 }
 
-void dtr0xx_ioComponent::read_gpio_(bool write_output_pins) {
-
+void dtr0xx_ioComponent::read_gpio_(bool write_output_pins)
+{
+  // PL needs to be true during reading
   this->dingtian_pl_pin_->digital_write(true);
   delayMicroseconds(1);
-  
-  // not needed as it will always be false
-  // if (this->dingtian_rck_pin_ != nullptr)
-  //   this->dingtian_rck_pin_->digital_write(false);
 
   for (uint8_t i = 0; i < this->sr_count_; i++) {
     for (uint8_t j = 0; j < 8; j++) {
@@ -70,6 +67,8 @@ void dtr0xx_ioComponent::read_gpio_(bool write_output_pins) {
       delayMicroseconds(1);
     }
   }
+
+  // PL needs to be fasle during output latching, and always for the relays to work!!
   this->dingtian_pl_pin_->digital_write(false);
 
   // toggle RCK only if there is a change in output
