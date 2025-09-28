@@ -24,10 +24,10 @@ void dtr0xx_ioComponent::setup() {
   }
 
   // read state from shift register
-  this->read_gpio_();
+  this->read_gpio_(true);
 }
 
-void dtr0xx_ioComponent::loop() { this->read_gpio_(); }
+void dtr0xx_ioComponent::loop() { this->read_gpio_(false); }
 
 void dtr0xx_ioComponent::dump_config() { ESP_LOGCONFIG(TAG, "dtr0xx_io:"); }
 
@@ -48,13 +48,13 @@ void dtr0xx_ioComponent::digital_write_(uint16_t pin, bool value)
     return;
   }
   this->output_bits_[pin] = value;
-  this->read_gpio_();
+  this->read_gpio_(true);
 }
 
-void dtr0xx_ioComponent::read_gpio_() {
+void dtr0xx_ioComponent::read_gpio_(bool write_output_pins) {
 
   this->dingtian_pl_pin_->digital_write(true);
-  delayMicroseconds(10);
+  delayMicroseconds(1);
 
   if (this->dingtian_rck_pin_ != nullptr)
     this->dingtian_rck_pin_->digital_write(false);
@@ -64,15 +64,20 @@ void dtr0xx_ioComponent::read_gpio_() {
       this->input_bits_[(i * 8) + (7 - j)] = this->dingtian_q7_pin_->digital_read();
       this->dingtian_sdi_pin_->digital_write(this->output_bits_[(i * 8) + (7 - j)]);
       this->dingtian_clk_pin_->digital_write(true);
-      delayMicroseconds(10);
+      delayMicroseconds(1);
       this->dingtian_clk_pin_->digital_write(false);
-      delayMicroseconds(10);
+      delayMicroseconds(1);
     }
   }
   this->dingtian_pl_pin_->digital_write(false);
-  //if (this->dingtian_rck_pin_ != nullptr)
+
+  // toggle RCK only if there is a change in output
+  if (true == write_output_pins)
+  {
     this->dingtian_rck_pin_->digital_write(true);
+    delayMicroseconds(1);
     this->dingtian_rck_pin_->digital_write(false);
+  }
 }
 
 float dtr0xx_ioComponent::get_setup_priority() const { return setup_priority::IO; }

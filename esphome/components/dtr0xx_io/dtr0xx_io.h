@@ -36,7 +36,7 @@ class dtr0xx_ioComponent : public Component {
   friend class dtr0xx_ioGPIOPin;
   bool digital_read_(uint16_t pin);
   void digital_write_(uint16_t pin, bool value);
-  void read_gpio_();
+  void read_gpio_(bool write_output_pins);
   void write_gpio_();
 
   GPIOPin *dingtian_q7_pin_;
