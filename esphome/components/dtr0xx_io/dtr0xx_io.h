@@ -9,12 +9,12 @@
 namespace esphome {
 namespace dtr0xx_io {
 
-class dtr0xx_ioComponent : public Component {
+class dtr0xx_ioComponent : public PollingComponent {
  public:
   dtr0xx_ioComponent() = default;
 
   void setup() override;
-  void loop() override;
+  void update() override;
   float get_setup_priority() const override;
   void dump_config() override;
 

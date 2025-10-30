@@ -16,7 +16,7 @@ MULTI_CONF = True
 
 dtr0xx_io_ns = cg.esphome_ns.namespace("dtr0xx_io")
 
-dtr0xx_ioComponent = dtr0xx_io_ns.class_("dtr0xx_ioComponent", cg.Component)
+dtr0xx_ioComponent = dtr0xx_io_ns.class_("dtr0xx_ioComponent", cg.PollingComponent)
 dtr0xx_ioGPIOPin = dtr0xx_io_ns.class_(
     "dtr0xx_ioGPIOPin", cg.GPIOPin, cg.Parented.template(dtr0xx_ioComponent)
 )
@@ -39,7 +39,9 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_DINGTIAN_RCK): pins.gpio_output_pin_schema,
         cv.Optional(CONF_SR_COUNT, default=1): cv.int_range(min=1, max=256),
     }
-).extend(cv.COMPONENT_SCHEMA)
+).extend(
+            cv.polling_component_schema("40ms")
+        )
 
 
 async def to_code(config):

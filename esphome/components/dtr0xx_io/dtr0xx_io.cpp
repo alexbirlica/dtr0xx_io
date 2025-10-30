@@ -27,7 +27,9 @@ void dtr0xx_ioComponent::setup() {
   this->read_gpio_(true);
 }
 
-void dtr0xx_ioComponent::loop() { this->read_gpio_(false); }
+void dtr0xx_ioComponent::update() {
+  this->read_gpio_(false);
+}
 
 void dtr0xx_ioComponent::dump_config() { ESP_LOGCONFIG(TAG, "dtr0xx_io:"); }
 
