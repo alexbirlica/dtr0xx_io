@@ -3,13 +3,18 @@
 #include "esphome/core/component.h"
 #include "esphome/core/hal.h"
 #include "esphome/core/helpers.h"
+#include "esphome/components/spi/spi.h"
 
 #include <vector>
 
 namespace esphome {
 namespace dtr0xx_io {
 
-class dtr0xx_ioComponent : public PollingComponent {
+class dtr0xx_ioComponent : public PollingComponent,
+                           public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST,
+                                                  spi::CLOCK_POLARITY_LOW,
+                                                  spi::CLOCK_PHASE_LEADING,
+                                                  spi::DATA_RATE_4MHZ> {
  public:
   dtr0xx_ioComponent() = default;
 
@@ -18,18 +23,12 @@ class dtr0xx_ioComponent : public PollingComponent {
   float get_setup_priority() const override;
   void dump_config() override;
 
-  void set_dingtian_q7_pin(GPIOPin *pin) { this->dingtian_q7_pin_ = pin; }
-  void set_dingtian_sdi_pin(GPIOPin *pin) { this->dingtian_sdi_pin_ = pin; }
-  
-  void set_dingtian_clk_pin(GPIOPin *pin) { this->dingtian_clk_pin_ = pin; }
   void set_dingtian_pl_pin(GPIOPin *pin) { this->dingtian_pl_pin_ = pin; }
-  void set_dingtian_rck_pin(GPIOPin *pin) { this->dingtian_rck_pin_ = pin; }
-  
   
   void set_sr_count(uint8_t count) {
     this->sr_count_ = count;
-    this->input_bits_.resize(count * 8);
-    this->output_bits_.resize(count * 8);
+    this->input_bytes_.resize(count);
+    this->output_bytes_.resize(count);
   }
 
   void set_dingtian_v2(bool dingtian_v2)
@@ -41,17 +40,13 @@ class dtr0xx_ioComponent : public PollingComponent {
   friend class dtr0xx_ioGPIOPin;
   bool digital_read_(uint16_t pin);
   void digital_write_(uint16_t pin, bool value);
-  void read_gpio_();
+  void transfer_gpio_();
   void write_gpio_();
 
-  GPIOPin *dingtian_q7_pin_;
-  GPIOPin *dingtian_sdi_pin_;
-  GPIOPin *dingtian_clk_pin_;
   GPIOPin *dingtian_pl_pin_;
-  GPIOPin *dingtian_rck_pin_;
   uint8_t sr_count_;
-  std::vector<bool> input_bits_;
-  std::vector<bool> output_bits_;
+  std::vector<uint8_t> input_bytes_;
+  std::vector<uint8_t> output_bytes_;
   bool dingtian_v2_;
 };
 
