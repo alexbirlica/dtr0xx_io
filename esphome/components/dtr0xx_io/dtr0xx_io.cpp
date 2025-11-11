@@ -5,8 +5,6 @@
 namespace esphome {
 namespace dtr0xx_io {
 
-static portMUX_TYPE readGpioMux = portMUX_INITIALIZER_UNLOCKED;
-
 static const char *const TAG = "dtr0xx_io";
 
 void dtr0xx_ioComponent::setup() {
@@ -58,9 +56,7 @@ void dtr0xx_ioComponent::digital_write_(uint16_t pin, bool value)
 }
 
 void dtr0xx_ioComponent::read_gpio_() {
-  // enter critical area to not disturb the timming
-  taskENTER_CRITICAL(&readGpioMux);
-  
+  uint32_t i, j;
   // RCK needs to be low during shifting
   this->dingtian_rck_pin_->digital_write(false);
 
@@ -68,17 +64,14 @@ void dtr0xx_ioComponent::read_gpio_() {
   if ( false == dingtian_v2_ ) {
     // PL needs to be true during reading
     this->dingtian_pl_pin_->digital_write(true);
-    delayMicroseconds(1);
   }
 
-  for (uint8_t i = 0; i < this->sr_count_; i++) {
-    for (uint8_t j = 0; j < 8; j++) {
+  for (i = 0; i < this->sr_count_; i++) {
+    for (j = 0; j < 8; j++) {
       this->input_bits_[(i * 8) + (7 - j)] = this->dingtian_q7_pin_->digital_read();
       this->dingtian_sdi_pin_->digital_write(this->output_bits_[(i * 8) + (7 - j)]);
       this->dingtian_clk_pin_->digital_write(true);
-      delayMicroseconds(1);
       this->dingtian_clk_pin_->digital_write(false);
-      delayMicroseconds(1);
     }
   }
 
@@ -86,13 +79,9 @@ void dtr0xx_ioComponent::read_gpio_() {
   if ( false == dingtian_v2_ ) {
     // PL needs to be fasle during output latching, and always for the relays to work!!
     this->dingtian_pl_pin_->digital_write(false);
-    delayMicroseconds(1);
   }
 
   this->dingtian_rck_pin_->digital_write(true);
-
-  // exit critical area
-  taskEXIT_CRITICAL(&readGpioMux);
 }
 
 float dtr0xx_ioComponent::get_setup_priority() const { return setup_priority::IO; }
